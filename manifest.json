@@ -8,7 +8,6 @@
   }],
   "version": "0.0",
   "permissions": [
-    "activeTab",
     "storage"
   ],
   "browser_action": {

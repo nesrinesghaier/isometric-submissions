@@ -81,19 +81,19 @@
  * Isometric cube display
  */
 .ic-cubes .contrib-details,
-.ic-cubes .contrib-footer {
+.ic-cubes {
   display: none;
 }
 
-.ic-cubes .calendar-graph {
+.ic-cubes {
   display: none !important;
 }
 
-.ic-cubes.show-2d .contrib-footer {
-  display: block;
-}
+/*.ic-cubes.show-2d .contrib-footer {*/
+/*  display: block;*/
+/*}*/
 
-.ic-cubes.show-2d .calendar-graph {
+.show-2d .ic-cubes {
   display: block !important;
 }
 

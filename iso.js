@@ -32,33 +32,29 @@ Iso = (function () {
     }
 
     getSettings(callback) {
-      var ref, ref1;
-      // Check for user preference, if chrome.storage is available.
-      // The storage API is not supported in content scripts.
-      // https://developer.mozilla.org/Add-ons/WebExtensions/Chrome_incompatibilities#storage
+      var toggleSetting = localStorage['toggleViewSetting'],
+        show2DSetting = localStorage['show2DSetting'];
+      console.log('callback', callback);
       if ((typeof chrome !== "undefined" && chrome !== null ? chrome.storage : void 0) != null) {
-        return chrome.storage.local.get(['toggleSetting', 'show2DSetting'], ({toggleSetting, show2DSetting}) => {
-          this.toggleSetting = toggleSetting != null ? toggleSetting : 'cubes';
-          this.show2DSetting = show2DSetting != null ? show2DSetting : 'no';
-          return callback();
-        });
+        this.toggleSetting = toggleSetting != null ? toggleSetting : 'cubes';
+        this.show2DSetting = show2DSetting != null ? show2DSetting : 'no';
+        console.log('storage', toggleSetting, show2DSetting);
+        return callback();
       } else {
-        this.toggleSetting = (ref = localStorage.toggleSetting) != null ? ref : 'cubes';
-        this.show2DSetting = (ref1 = localStorage.show2DSetting) != null ? ref1 : 'no';
+        this.toggleSetting = toggleSetting != null ? toggleSetting : 'cubes';
+        this.show2DSetting = show2DSetting != null ? show2DSetting : 'no';
         return callback();
       }
     }
 
-    persistSetting(key, value, callback = function () {
-    }) {
+    persistSetting(key, value, callback = () => console.log) {
       var obj;
       if ((typeof chrome !== "undefined" && chrome !== null ? chrome.storage : void 0) != null) {
         obj = {};
         obj[key] = value;
-        return chrome.storage.local.set(obj, callback);
+        localStorage[key] = value;
       } else {
         localStorage[key] = value;
-        return callback();
       }
     }
 
@@ -84,7 +80,7 @@ Iso = (function () {
       ($('<div class="ic-submissions-wrapper"></div>')).insertBefore($('#cal-heatmap'));
       ($('<canvas id="isometric-submissions" width="720" height="410"></canvas>')).appendTo('.ic-submissions-wrapper');
       contributionsBox = $('#cal-heatmap');
-      insertLocation = ($('#cal-heatmap'));
+      insertLocation = ($('#base_content > div > div > div.col-sm-7.col-md-8 > div:nth-child(1) > div.panel-heading > h3'));
       // Inject toggle
       htmlToggle = "<span class=\"ic-toggle\">\n  <a href=\"#\" class=\"ic-toggle-option tooltipped tooltipped-nw squares\" data-ic-option=\"squares\" aria-label=\"Normal chart view\"></a>\n  <a href=\"#\" class=\"ic-toggle-option tooltipped tooltipped-nw cubes\" data-ic-option=\"cubes\" aria-label=\"Isometric chart view\"></a>\n</span>";
       ($(htmlToggle)).insertBefore(insertLocation);
@@ -106,9 +102,10 @@ Iso = (function () {
         } else {
           (contributionsBox.removeClass('ic-squares')).addClass('ic-cubes');
         }
+        console.log(contributionsBox);
         ($('.ic-toggle-option')).removeClass('active');
         ($(this)).addClass('active');
-        self.persistSetting("toggleSetting", option);
+        self.persistSetting('toggleViewSetting', option);
         return self.toggleSetting = option;
       });
       // Apply user preference
@@ -117,24 +114,25 @@ Iso = (function () {
       ($('.ic-2d-toggle')).click(function (e) {
         e.preventDefault();
         if (contributionsBox.hasClass('show-2d')) {
-          ($(this)).text('Show normal chart ▾');
+          ($(this)).text('Show isometric chart ▾');
           contributionsBox.removeClass('show-2d');
-          self.persistSetting("show2DSetting", 'no');
+          self.persistSetting('show2DSetting', 'no');
           return self.show2DSetting = 'no';
         } else {
-          ($(this)).text('Hide normal chart ▴');
+          ($(this)).text('Hide isometric chart ▴');
           contributionsBox.addClass('show-2d');
-          self.persistSetting("show2DSetting", 'yes');
+          self.persistSetting('show2DSetting', 'yes');
           return self.show2DSetting = 'yes';
         }
       });
       // Apply user preference
       if (this.show2DSetting === "yes") {
         contributionsBox.addClass('show-2d');
-        return ($('.ic-2d-toggle')).text('Hide normal chart ▴');
+        console.log('2d yes', contributionsBox);
+        return ($('.ic-2d-toggle')).text('Hide isometric chart ▴');
       } else {
         contributionsBox.removeClass('show-2d');
-        return ($('.ic-2d-toggle')).text('Show normal chart ▾');
+        return ($('.ic-2d-toggle')).text('Show isometric chart ▾');
       }
     }
 
@@ -292,7 +290,7 @@ Iso = (function () {
 
     renderTopStats(countTotal, averageCount, datesTotal, maxCount, dateBest) {
       var html;
-      html = `<div class="ic-stats-block ic-stats-top">\n  <span class="ic-stats-table">\n    <span class="ic-stats-row">\n      <span class="ic-stats-label">1 year total\n        <span class="ic-stats-count">${countTotal}</span>\n        <span class="ic-stats-average">${averageCount}</span> per day\n      </span>\n      <span class="ic-stats-meta ic-stats-total-meta">\n        <span class="ic-stats-unit">submissions</span>\n        <span class="ic-stats-date">${datesTotal}</span>\n      </span>\n    </span>\n    <span class="ic-stats-row">\n      <span class="ic-stats-label">Busiest day\n        <span class="ic-stats-count">${maxCount}</span>\n      </span>\n      <span class="ic-stats-meta">\n        <span class="ic-stats-unit">contributions</span>\n          <span class="ic-stats-date">${dateBest}</span>\n        </span>\n      </span>\n    </span>\n  </span>\n</div>`;
+      html = `<div class="ic-stats-block ic-stats-top">\n  <span class="ic-stats-table">\n    <span class="ic-stats-row">\n      <span class="ic-stats-label">1 year total\n        <span class="ic-stats-count">${countTotal}</span>\n        <span class="ic-stats-average">${averageCount}</span> per day\n      </span>\n      <span class="ic-stats-meta ic-stats-total-meta">\n        <span class="ic-stats-unit">submissions</span>\n        <span class="ic-stats-date">${datesTotal}</span>\n      </span>\n    </span>\n    <span class="ic-stats-row">\n      <span class="ic-stats-label">Busiest day\n        <span class="ic-stats-count">${maxCount}</span>\n      </span>\n      <span class="ic-stats-meta">\n        <span class="ic-stats-unit">submissions</span>\n          <span class="ic-stats-date">${dateBest}</span>\n        </span>\n      </span>\n    </span>\n  </span>\n</div>`;
       return ($(html)).appendTo($('.ic-submissions-wrapper'));
     }
 
