@@ -1,0 +1,22 @@
+{
+  "name": "Isometric Submissions",
+  "description": "Renders an isometric pixel view of LeetCode submissions graphs",
+  "content_scripts": [ {
+    "css": [ "iso.css" ],
+    "js": [ "jquery.min.js", "obelisk.min.js", "iso.js" ],
+    "matches": [ "http://*/*", "https://*/*" ]
+  }],
+  "version": "0.0",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "browser_action": {
+    "default_title": "show isometric graph"
+  },
+  "icons" : {
+    "48" : "icon-48.png",
+    "128" : "icon-128.png"
+  },
+  "manifest_version": 2
+}
