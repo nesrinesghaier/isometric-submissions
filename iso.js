@@ -187,20 +187,22 @@ Iso = (function () {
       let username = $('p.username').text().trim();
       if (username) {
         let submissions = 0;
-
         return fetch(`/api/user_submission_calendar/${username}/`).then(r => r.json()).then(j => {
-          var h = new Date, r = 0, a = 5;
+          var h = new Date, busiestDay = new Date, r = 0, a = 5;
           h.setDate(h.getDate() - 364);
           let n = JSON.parse(j);
-          let test = 2328;
+          let max = 0;
           Object.keys(n).forEach(function (e) {
             var t = new Date(1e3 * e);
-            h <= t && (r += n[e]);
-            n[e] > a && (a = n[e])
+            if (h <= t) {
+              r += n[e];
+              n[e] >= max && (busiestDay = t);
+              max = Math.max(max, n[e]);
+            }
+            n[e] > a && (a = n[e]);
             submissions += n[e];
-              console.log('date',t,n[e],test,r);
           });
-          return r;
+          return [r, max, busiestDay];
         });
       }
 
@@ -211,7 +213,8 @@ Iso = (function () {
       let currentDayCount, currentStreakEnd, currentStreakStart, d, dateBest, dateFirst, countTotal,
         dateLast, datesCurrent, datesLongest, datesTotal, dayDifference, days, i, j, len, longestStreakEnd,
         longestStreakStart, streakCurrent, streakLongest, tempStreak, tempStreakStart;
-      countTotal = await this.calculateTotalSubmissions();
+      let apiSubmissionsResult = await this.calculateTotalSubmissions();
+      countTotal = apiSubmissionsResult[0];
       streakLongest = 0;
       streakCurrent = 0;
       tempStreak = 0;
@@ -229,7 +232,7 @@ Iso = (function () {
         i++;
         let currentDayCount, tempStreakEnd;
         currentDayCount = this.getRectCount(d);
-        yearTotal += currentDayCount;
+        yearTotal = countTotal;
         if (i === 1) {
           firstDay = this.getRectDate(d);
         }
@@ -238,8 +241,9 @@ Iso = (function () {
           currentStreakEnd = lastDay;
         }
         if (currentDayCount > maxCount) {
-          bestDay = this.getRectDate(d);
+          bestDay = this.formatDate(apiSubmissionsResult[2],0);
           maxCount = currentDayCount;
+          // maxCount = apiSubmissionsResult[1];
         }
         // Check for longest streak
         if (currentDayCount > 0) {
@@ -307,7 +311,7 @@ Iso = (function () {
       } else {
         datesLongest = "No longest streak";
       }
-      this.renderTopStats(countTotal, averageCount, datesTotal, maxCount, dateBest);
+      this.renderTopStats(countTotal, averageCount, datesTotal, apiSubmissionsResult[1], dateBest);
       return this.renderBottomStats(streakLongest, datesLongest, streakCurrent, datesCurrent);
     }
 
