@@ -1,7 +1,7 @@
 let Iso, callback, loadIso;
 
 Iso = (function () {
-  let averageCount, bestDay, contributionsBox, dateOptions, dateWithYearOptions, firstDay, lastDay, maxCount, yearTotal;
+  let averageCount, bestDay, contributionsBox, firstDay, lastDay, maxCount, yearTotal;
 
   let COLORS = [
     new obelisk.CubeColor().getByHorizontalColor(0xededed),
@@ -10,6 +10,17 @@ Iso = (function () {
     new obelisk.CubeColor().getByHorizontalColor(0x669d45),
     new obelisk.CubeColor().getByHorizontalColor(0x637939),
     new obelisk.CubeColor().getByHorizontalColor(0x3b6427)];
+
+  let dateOptions = {
+    month: "short",
+    day: "numeric"
+  };
+
+  let dateWithYearOptions = {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  };
 
   class Iso {
     constructor(target) {
@@ -189,11 +200,11 @@ Iso = (function () {
         let submissions = 0;
         return fetch(`/api/user_submission_calendar/${username}/`).then(r => r.json()).then(j => {
           var h = new Date, busiestDay = new Date, r = 0, a = 5;
-          h.setDate(h.getDate() - 364);
+          h.setDate(h.getDate() - 365);
           let n = JSON.parse(j);
           let max = 0;
           Object.keys(n).forEach(function (e) {
-            var t = new Date(1e3 * e);
+            const t = new Date(1e3 * e);
             if (h <= t) {
               r += n[e];
               n[e] >= max && (busiestDay = t);
@@ -241,7 +252,7 @@ Iso = (function () {
           currentStreakEnd = lastDay;
         }
         if (currentDayCount > maxCount) {
-          bestDay = this.formatDate(apiSubmissionsResult[2],0);
+          bestDay = this.formatDate(apiSubmissionsResult[2], 0);
           maxCount = currentDayCount;
           // maxCount = apiSubmissionsResult[1];
         }
@@ -268,18 +279,25 @@ Iso = (function () {
       // we end up with a regular JS Array after reversing
       const daysNodeList = document.querySelectorAll('.graph svg > svg > g');
       days = Array.prototype.slice.call(daysNodeList).reverse();
+
+      let todayDate = this.formatDate(new Date(), 0);
+      let todayTime = new Date().getTime();
+      let yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       for (i = j = 0, len = days.length; j < len; i = ++j) {
         d = days[i];
         currentDayCount = this.getRectCount(d);
+        let currentDayDate = this.formatDate(new Date(this.getRectDate(d)), 0);
+        let currentDayTime = new Date(this.getRectDate(d)).getTime();
         // If there's no activity today, continue on to yesterday
-        if (i === 0 && currentDayCount === 0) {
-          currentStreakEnd = this.getRectDate(days[1]);
+        if (currentDayDate === todayDate && currentDayCount === 0) {
+          currentStreakEnd = this.formatDate(yesterdayDate, 0);
           continue;
         }
         if (currentDayCount > 0) {
           streakCurrent++;
           currentStreakStart = this.getRectDate(d);
-        } else {
+        } else if (currentDayTime < todayTime) {
           break;
         }
       }
@@ -455,16 +473,6 @@ Iso = (function () {
 
   contributionsBox = null;
 
-  dateOptions = {
-    month: "short",
-    day: "numeric"
-  };
-
-  dateWithYearOptions = {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  };
   return Iso;
 
 }).call(this);
