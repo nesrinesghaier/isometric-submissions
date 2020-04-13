@@ -60,20 +60,21 @@ Iso = (function () {
       }
     }
 
-    generateIsometricChart() {
+    async generateIsometricChart() {
       this.resetValues();
       this.initUI();
-      this.loadStats();
+      await this.loadStats();
       return this.renderIsometricChart();
     }
 
     resetValues() {
-      yearTotal = 0;
       averageCount = 0;
+      yearTotal = 0;
       maxCount = 0;
       bestDay = null;
-      firstDay = null;
       lastDay = null;
+      firstDay = null;
+
       return contributionsBox = null;
     }
 
@@ -182,11 +183,35 @@ Iso = (function () {
       return this.formatDate(this.getDateOfISOWeek(currentWeekIndex + 1, currentYear), dayIndex);
     }
 
-    loadStats() {
+    async calculateTotalSubmissions() {
+      let username = $('p.username').text().trim();
+      if (username) {
+        let submissions = 0;
+
+        return fetch(`/api/user_submission_calendar/${username}/`).then(r => r.json()).then(j => {
+          var h = new Date, r = 0, a = 5;
+          h.setDate(h.getDate() - 364);
+          let n = JSON.parse(j);
+          let test = 2328;
+          Object.keys(n).forEach(function (e) {
+            var t = new Date(1e3 * e);
+            h <= t && (r += n[e]);
+            n[e] > a && (a = n[e])
+            submissions += n[e];
+              console.log('date',t,n[e],test,r);
+          });
+          return r;
+        });
+      }
+
+    }
+
+    async loadStats() {
       let currentDayClassString;
-      let countTotal, currentDayCount, currentStreakEnd, currentStreakStart, d, dateBest, dateFirst,
+      let currentDayCount, currentStreakEnd, currentStreakStart, d, dateBest, dateFirst, countTotal,
         dateLast, datesCurrent, datesLongest, datesTotal, dayDifference, days, i, j, len, longestStreakEnd,
         longestStreakStart, streakCurrent, streakLongest, tempStreak, tempStreakStart;
+      countTotal = await this.calculateTotalSubmissions();
       streakLongest = 0;
       streakCurrent = 0;
       tempStreak = 0;
@@ -212,7 +237,6 @@ Iso = (function () {
           lastDay = this.getRectDate(d);
           currentStreakEnd = lastDay;
         }
-        // Check for best day
         if (currentDayCount > maxCount) {
           bestDay = this.getRectDate(d);
           maxCount = currentDayCount;
@@ -236,6 +260,7 @@ Iso = (function () {
       });
       // Check for current streak
       // Have to iterate and access differently than above because
+      // Check for best day
       // we end up with a regular JS Array after reversing
       const daysNodeList = document.querySelectorAll('.graph svg > svg > g');
       days = Array.prototype.slice.call(daysNodeList).reverse();
@@ -254,7 +279,6 @@ Iso = (function () {
           break;
         }
       }
-      // fetch('/api/user_submission_calendar/nesrinesghaier').then(r => r.json()).then(j=>JSON.parse(j))
       if (streakCurrent > 0) {
         currentStreakStart = this.formatDateString(currentStreakStart, dateOptions);
         currentStreakEnd = this.formatDateString(currentStreakEnd, dateOptions);
@@ -263,7 +287,6 @@ Iso = (function () {
         datesCurrent = "No current streak";
       }
       // Year total
-      countTotal = yearTotal.toLocaleString();
       dateFirst = this.formatDateString(firstDay, dateWithYearOptions);
       dateLast = this.formatDateString(lastDay, dateWithYearOptions);
       datesTotal = dateFirst + " — " + dateLast;
