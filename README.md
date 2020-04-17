@@ -9,6 +9,7 @@ the year with more granularity. It won't certainly replace the standard 2D graph
 open for improvements in order to add more features like to get the number of daily submissions on hover over a bar.
 
 ![Image description](is-screen-shot.png)
+
 As shown in the screenshot, the top right toggle is to toggle between the 2D and 3D view.
 and the top left link is to hide/show the usual 2D chart.
 
