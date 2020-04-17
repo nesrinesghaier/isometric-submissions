@@ -1,7 +1,5 @@
 ## Isometric submissions
-This is an extension for Chrome that is similar to [isometric contributions](https://github.com/jasonlong/isometric-contributions). In fact,
-it only works with [LeetCode](https://leetcode.com/). It allows to switch between your LeetCode submissions chart and an isometric pixel art
- version. It uses [obelisk.js](https://github.com/nosir/obelisk.js) for the isometric graphics.
+This is an extension for Chrome that is similar to [isometric contributions](https://github.com/jasonlong/isometric-contributions). But this one works with [LeetCode](https://leetcode.com/). It allows to switch between your LeetCode submissions chart and an isometric pixel art version. It uses [obelisk.js](https://github.com/nosir/obelisk.js) for the isometric graphics.
 
 Besides being sort of neat looking, this view is interesting in that
 it highlights the differences between the number of submissions in the platform during
